@@ -1,44 +1,84 @@
+'use strict';
+
 var React = require('react');
 var ReactDOM = require('react-dom');
+var App = React.createClass({
 
-var TodoList = React.createClass({
-  render: function() {
-    var createItem = function(item) {
-      return <li key={item.id}>{item.text}</li>;
-    };
-    return <ul>{this.props.items.map(createItem)}</ul>;
-  }
-});
-var TodoApp = React.createClass({
-  getInitialState: function() {
-    return {items: [], text: ''};
+// todos will change over time so we put them in an array.
+  getInitialState: function(){
+    return{ 
+      todo: [
+        { title: 'Todo:', complete: false },
+        { title: 'Todo1:', complete: false },
+        { title: 'Todo2:', complete: false },
+        { title: 'Todo3:', complete: false }
+      ]
+    }
   },
-  onChange: function(e) {
-    this.setState({text: e.target.value});
+
+  toggleComplete: function(todoItem){
+      
+      var newTodoArray = this.state.todo.map(function(todo){
+        if(todoItem === todo){
+          todo.complete = !todo.complete;
+        } 
+        return todo;
+      });
+
+      this.setState({todo: newTodoArray});
   },
-  handleSubmit: function(e) {
-    e.preventDefault();
-    var nextItems = this.state.items.concat([{text: this.state.text, id: Date.now()}]);
-    var nextText = '';
-    this.setState({items: nextItems, text: nextText});
+
+
+//components have data and the data creates the visual 
+//properties and states. states we create inside of the componenet, 
+//props we define on the component instances. <--------->
+
+  renderTodo: function(value, index){
+      return <Todo key={index} 
+                   id={index} 
+                   toggleComplete={this.toggleComplete} 
+                   todoData={value} />;
   },
+
   render: function() {
     return (
-      <div>
-        <h3>TODO</h3>
-        <TodoList items={this.state.items} />
-        <form onSubmit={this.handleSubmit}>
-          <input onChange={this.onChange} value={this.state.text} />
-          <button>{'Add #' + (this.state.items.length + 1)}</button>
-        </form>
+      <div className="todo-list">
+          <h1>Todo App</h1>
+            <ul>
+            
+              { this.state.todo.map(this.renderTodo) }
+
+            </ul>
       </div>
-    );
+    )
   }
 });
 
 
+var Todo = React.createClass({
+  
 
+  getInitialState: function(){
+    return {};
+  },
 
-ReactDOM.render(<TodoApp />, document.querySelector('.mount-node'));
+  renderToggle: function() {
+    //
+    this.props.toggleComplete(this.props.todoData);
+
+  },
+
+  render: function(){
+    return(
+        <li> {this.props.todoData.title}
+          <input type="checkbox" id={this.props.id} checked={this.props.todoData.complete} onClick={this.renderToggle}/>
+          <label htmlFor={this.props.id} id={this.props.key}></label>
+          <button><i className="fa fa-trash"></i></button>
+        </li>
+    )
+  }
+});
+
+ReactDOM.render(<App />, document.querySelector('#todo-app'));
 
 
