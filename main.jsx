@@ -7,33 +7,34 @@ var App = React.createClass({
 // todos will change over time so we put them in an array.
   getInitialState: function(){
     return{ 
-      todo: [
-
-      ]
+      todo: []
     }
   },
 
   toggleComplete: function(todoItem){
       
-      var newTodoArray = this.state.todo.map(function(todo){
-        if(todoItem === todo){
-          todo.complete = !todo.complete;
-        } 
-        return todo;
-      });
+    var newTodoArray = this.state.todo.map(function(todo){
+      if(todoItem === todo){
+        todo.complete = !todo.complete;
+      } 
+      return todo;
+    });
 
-      this.setState({todo: newTodoArray});
+    this.setState({todo: newTodoArray});
   },
 
-
-//components have data and the data creates the visual 
-//properties and states. states we create inside of the componenet, 
-//props we define on the component instances. <--------->
+  removeTodo: function(todoData){
+    var newTodoArray = this.state.todo.filter(function(itemToRemove){
+      return todoData === itemToRemove ? false : true;
+    });
+    this.setState({todo: newTodoArray});
+  },
 
   renderTodo: function(value, index){
       return <Todo key={index} 
                    id={index} 
                    toggleComplete={this.toggleComplete} 
+                   removeTodo={this.removeTodo}
                    todoData={value} />;
   },
 
@@ -48,6 +49,24 @@ var App = React.createClass({
       }
   },
 
+  hasCompleted: function(){
+    var completedArray = this.state.todo.filter(function(todoItem){
+      return todoItem.complete === true;
+    });  
+    return completedArray.length;
+
+  },    
+
+  removeSelected: function(){
+    
+    var newTodoArray = this.state.todo.filter(function(todoItem){
+      return todoItem.complete ? false : true;
+
+    });    
+
+    this.setState( {todo: newTodoArray});
+  },
+
   render: function() {
 
     var number = this.state.todo.length;
@@ -58,25 +77,24 @@ var App = React.createClass({
             <div className="add-todo">
             <form name="addToDoForm" onSubmit={this.addTodo}>
              <span> <input type="text" ref="addTodo"/>(hit Enter to add)</span>
-              
             </form>
             </div>
               { this.state.todo.map(this.renderTodo) }
 
             </ul>
-            <div className="todoCount">
+            <div className="todo-admin">
               <div>
                 {number}{number > 1 || number === 0 ? " todos" : " todo" }
               </div>
-              <div>
-    
+              <div>{ this.hasCompleted() ? 
+                <button className="removeSelected" onClick={this.removeSelected}>Clear Finished</button> : ''
+                }
               </div>
             </div>
       </div>
     )
   }
 });
-
 
 var Todo = React.createClass({
   
@@ -85,18 +103,22 @@ var Todo = React.createClass({
     return {};
   },
 
-  renderToggle: function() {
-    //
+  applyToggle: function() {
+    
     this.props.toggleComplete(this.props.todoData);
 
   },
 
+  tellParentToRemoveTodo: function() {
+    this.props.removeTodo(this.props.todoData);
+  },
+
   render: function(){
     return(
-        <li> {this.props.todoData.title}
-          <input type="checkbox" id={this.props.id} checked={this.props.todoData.complete} onClick={this.renderToggle}/>
+        <li>{this.props.todoData.title}
+          <input type="checkbox" id={this.props.id} checked={this.props.todoData.complete} onClick={this.applyToggle}/>
             <label htmlFor={this.props.id} id={this.props.key}></label>
-          <button><i className="fa fa-trash"></i></button>
+          <button onClick={this.tellParentToRemoveTodo}><i className="fa fa-trash"></i></button>
         </li>
     )
   }
