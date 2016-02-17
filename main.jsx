@@ -8,10 +8,7 @@ var App = React.createClass({
   getInitialState: function(){
     return{ 
       todo: [
-        { title: 'Todo:', complete: false },
-        { title: 'Todo1:', complete: false },
-        { title: 'Todo2:', complete: false },
-        { title: 'Todo3:', complete: false }
+
       ]
     }
   },
@@ -40,15 +37,41 @@ var App = React.createClass({
                    todoData={value} />;
   },
 
+  addTodo: function(e){
+
+      e.preventDefault();
+    
+      if(this.refs.addTodo.value){
+          this.state.todo.push({ title: this.refs.addTodo.value, complete: false});
+          this.setState({ todo: this.state.todo});
+          this.refs.addTodo.value = '';
+      }
+  },
+
   render: function() {
+
+    var number = this.state.todo.length;
     return (
       <div className="todo-list">
           <h1>Todo App</h1>
             <ul>
-            
+            <div className="add-todo">
+            <form name="addToDoForm" onSubmit={this.addTodo}>
+             <span> <input type="text" ref="addTodo"/>(hit Enter to add)</span>
+              
+            </form>
+            </div>
               { this.state.todo.map(this.renderTodo) }
 
             </ul>
+            <div className="todoCount">
+              <div>
+                {number}{number > 1 || number === 0 ? " todos" : " todo" }
+              </div>
+              <div>
+    
+              </div>
+            </div>
       </div>
     )
   }
@@ -72,7 +95,7 @@ var Todo = React.createClass({
     return(
         <li> {this.props.todoData.title}
           <input type="checkbox" id={this.props.id} checked={this.props.todoData.complete} onClick={this.renderToggle}/>
-          <label htmlFor={this.props.id} id={this.props.key}></label>
+            <label htmlFor={this.props.id} id={this.props.key}></label>
           <button><i className="fa fa-trash"></i></button>
         </li>
     )
